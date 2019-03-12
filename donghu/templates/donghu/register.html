@@ -1,0 +1,54 @@
+{% extends 'donghu/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+    注册
+{% endblock %}
+
+
+{% block body_block %}
+    {% if registered %}
+        <h1>Success!</h1>
+    {% else %}
+        <form id="register" method="POST" action="#">
+            {% csrf_token %}
+
+            <p>
+                <input type="text" name="username" maxlength="150" required="" id="username" placeholder="用户名">
+                <label id="namewrong"></label>
+            </p>
+
+            <div class="form-group">
+                <div class="col-xs-6 col-sm-7 col-md-7 col-lg-7" >
+                   <input type="text"  id="useremail" class="form-control" placeholder="学号">@lcu.edu.cn
+                    <label id="emailwrong"></label>
+
+                </div>
+                <div class="col-xs-6 col-sm-5 col-md-5 col-lg-5" style="justify-content:flex-end;display: flex;">
+                   <button type="button" class="btn btn-info"  id="second">点击获取验证码</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="securityCode" class="form-control" required="" id="yzm" placeholder="请输入验证码">
+                <label id="yzmwrong" ></label>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" required="" id="password" placeholder="密码">
+                <label id="pwdwrong" ></label>
+            </div>
+            <div class="form-group">
+                <input type="password" name="repassword" required="" id="repassword" placeholder="再次输入密码">
+                <label id="rpwdwrong" ></label>
+            </div>
+
+            <input type="button" id="submit" name="submit" value="注册">
+        </form>
+    {% endif %}
+
+{% endblock %}
+
+{% block js_block %}
+    <script type="text/javascript" src="{% static "js/register.js" %}"></script>
+{% endblock %}

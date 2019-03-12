@@ -7,11 +7,27 @@
         DonghuBBS
     {% endblock %}
     </title>
+     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+     <script src="{% static 'js/jquery.cookie.js' %}"></script>
+
 </head>
 <body>
+    <div>
+        <ul>                
+            <li><a href="{% url 'donghu:index' %}">Index</a></li>
+            {% if not user.is_authenticated %}
+                <li><a href="{% url 'donghu:login' %}">Login</a></li>
+                <li><a href="{% url 'donghu:register' %}">Sign Up</a></li>
+            {% else %}
+                <li><a href="{% url 'donghu:logout' %}">Logout</a></li>
+            {% endif %}
+        </ul>
+    </div>
 <div>
     {% block body_block %}
     {% endblock %}
 </div>
+    {% block js_block %}
+    {% endblock %}
 </body>
 </html>
