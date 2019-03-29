@@ -24,7 +24,7 @@
 
             {% for article in article_list %}
                 <li>
-                    <a href="{% url 'donghu:detail' module.name user.username article.id %}">{{article.title}}</a>
+                    <a href="{% url 'donghu:detail' module.name article.author.username article.id %}">{{article.title}}</a>
                     <span>{{article.create_time|date:'m-d'}}</span>
                 </li>
             {% endfor %}
