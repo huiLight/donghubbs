@@ -1,0 +1,76 @@
+.card-list{
+    width: 952px;
+    margin: 20px auto 0;
+    border: 1px solid #eee;
+    border-bottom: none;
+}
+.card{
+    border: 1px solid transparent;
+    border-bottom: 1px solid #ddd;
+    background: #fbfbfb;
+}
+.post-owner{
+    width: 218px;
+    text-align: left;
+    /*min-height: 200px;*/
+    float: left;
+    padding: 10px;
+}
+.post-content{
+    width: 730px;
+    float: left;
+    text-align: left;
+    min-height: 200px;
+    padding: 20px;
+    border-left: 1px solid #eee;
+    background: #fcfcfc;
+    position: relative;
+}
+.post-content div{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+.post-content div a{
+    width: 50px;
+    font-size: 12px;
+    color: #666;
+}
+
+.replay{
+    width: 952px;
+    margin: 0px auto;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-top: none;
+}
+/*.replay div{
+    height: 30px;
+    text-align: left;
+    position: relative;
+}*/
+.replay div label{
+    width: 50px;
+    height: 28px;
+    text-align: center;
+    line-height: 28px;
+    display: inline-block;
+}
+.replay div button{
+    width: 50px;
+    height: 28px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    line-height: 28px;
+    text-align: center;
+    background: #ef7c62;
+    display: inline-block;
+    color: black;
+    position: absolute;
+    right: 10px;
+    cursor:pointer;
+}
+
+/*#comment-content{
+    padding: 10px;
+}*/

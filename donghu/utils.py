@@ -53,5 +53,17 @@ def sendyzm(studentid):
 
     return True, yzm
 
+# 将输入的html标签转义，以防止可能存在的注入及其它安全问题
+def replace(stri):
+    ascii_list = {'"':'&quot;', "'":"&apos;", '&':'&amp;',
+                 '<':'&lt', '>':'&gt;'}
+    for old, new in ascii_list.items():
+        stri = stri.replace(old, new)
+    return stri
+
 if __name__ == '__main__':
-    sendyzm('2014204388')
+    str1 = '<abcdeft>'
+    str2 = replace(str1)
+    print(str1, str2)
+    str1.replace('<', '&')
+    print(str1)

@@ -1,0 +1,175 @@
+{% extends 'donghu/base.html' %}
+{% load staticfiles %}
+{% block title_block %}
+    {{ passage.title }}
+{% endblock %}
+
+{% block head_block %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/editormd.preview.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/editormd.css' %}" />
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/passage.css' %}">
+{% endblock%}
+
+{% block body_block %}
+    <div class="card-list">
+        <div class="card">    
+            <div class="post-owner">
+                {{passage.author}}
+            </div>
+            <div id="editormd-view" class="post-content">
+                <textarea id="append-test" style="display: none;">{{passage.content}}</textarea>
+                <div>
+                    {% if user == passage.author %}
+                        <a href="/category/delete/{{passage.id}}/{{category}}">删除</a>
+                    {% endif %}
+                    {{ passage.create_time|date:'y-m-d H:i' }}
+                    <a id="replay">回复</a>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+        </div>
+        {% if comments %}
+            {% for comment, recomments in comments.items %}
+        <div class="card">
+                <div class="post-owner">   
+                    {{comment.author}}
+                </div>
+                <div class="post-content markdown-body" id="test-editormd{{forloop.counter}}">
+                    {% autoescape off %}
+                        {{comment.content}}
+                    {% endautoescape %}
+                    <div>
+                        {% if user == comment.author %}
+                            <a href="/delete/{{category}}/{{passage.id}}/{{comment.id}}">删除</a>
+                        {% endif %}
+                        {{ comment.create_time|date:'y-m-d H:i' }}
+                    <a href="#">回复</a>
+
+                    </div>
+                </div>
+                {% for rec in recomments %}
+                    <div>
+                        {{rec.from_id}}
+
+                        {{rec.content}}
+                    </div>
+                {% endfor %}
+        <div class="clear"></div>
+        </div>
+            {% endfor %}
+        {% endif %}
+        <div class="clear"></div>
+    </div>
+
+    <div class="replay" id="test-editormd">
+            <div><label>回复</label><button id="submit">发表</button></div>
+            <textarea id="comment-content"></textarea>
+
+    </div>
+    <!-- <script src="js/zepto.min.js"></script>
+    <script>        
+        var jQuery = Zepto;  // 为了避免修改flowChart.js和sequence-diagram.js的源码，所以使用Zepto.js时想支持flowChart/sequenceDiagram就得加上这一句
+    </script> -->
+    <!-- <script src="{% static 'js/jquery.min.js' %}"></script> 已经引入该文件，重复引入会导致错误 -->
+    <script src="{% static 'lib/marked.min.js' %}"></script>
+    <script src="{% static 'lib/prettify.min.js' %}"></script>
+    
+    <script src="{% static 'lib/raphael.min.js' %}"></script>
+    <script src="{% static 'lib/underscore.min.js' %}"></script>
+    <script src="{% static 'lib/sequence-diagram.min.js' %}"></script>
+    <script src="{% static 'lib/flowchart.min.js' %}"></script>
+    <script src="{% static 'lib/jquery.flowchart.min.js' %}"></script>
+
+    <script src="{% static 'js/editormd.js' %}"></script>
+    <script type="text/javascript">
+        var testEditormdView;
+        var testEditor;
+        $(function() {
+                console.log('ok')
+                testEditormdView = editormd.markdownToHTML("editormd-view", {
+                    //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode      : "style,script,iframe",  // you can filter tags decode
+                    //toc             : false,
+                    tocm            : true,    // Using [TOCM]
+                    //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                    //gfm             : false,
+                    //tocDropdown     : true,
+                    // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                    emoji           : true,
+                    taskList        : true,
+                    tex             : true,  // 默认不解析
+                    flowChart       : true,  // 默认不解析
+                    sequenceDiagram : true,  // 默认不解析
+                });
+                testEditor = editormd("test-editormd", {
+                        width  : "90%",
+                        height : 640,
+                        path   : "/static/lib/",
+                        // appendMarkdown : md,
+                        saveHTMLToTextarea : true,
+                        htmlDecode      : "style,script,iframe",
+                        emoji           : true,
+                        taskList        : true,
+                        tex             : true,  // 默认不解析
+                        flowChart       : true,  // 默认不解析
+                        sequenceDiagram : true,  // 默认不解析
+                            onload : function() {
+                            console.log('onload', this);
+                            this.hideToolbar();
+                            //this.fullscreen();
+                            this.unwatch();
+                            //this.watch().fullscreen();
+
+                            //this.setMarkdown("#PHP");
+                            this.width(950);
+                            this.height(480);
+                            //this.resize("100%", 640);
+                        },
+                });
+
+                $("#replay").bind("click",function(){
+                   testEditor.gotoLine(1);
+                });
+
+                //console.log("返回一个 jQuery 实例 =>", testEditormdView);
+                
+                // 获取Markdown源码
+                // console.log(testEditormdView);
+                
+                //alert(testEditormdView.getMarkdown());
+        });        
+        
+
+    $("#submit").click(function(){
+        var content = $(".editormd-html-textarea").val()
+        if (content==""){
+            alert("内容不能为空！");
+        }else{
+            $.ajax({
+                url: "/comment/",
+                headers:{"X-CSRFToken":$.cookie('csrftoken')},
+                data: {to:{{passage.id}}, content:content, },
+                dataType: "json",
+                type: "post",
+                async: false,
+                chache: false,
+                success: function(state){
+                    if(state['success']){
+                        window.location.href='./'+{{passage.id}}
+                    }else{
+                        alert("评论迷路了")
+                    }
+                },
+                error:function(){
+                    alert('提交失败')
+                }
+            });
+        }
+
+    });
+
+    </script>
+{% endblock %}

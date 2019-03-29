@@ -182,7 +182,7 @@ function setTime(obj) {
 }
 
 
-//校验手机号是否合法
+//校验号是否合法
 function isEmail(){
     var phonenum = $("#useremail").val();
     var reg = /^(\d{10})$/;

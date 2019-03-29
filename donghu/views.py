@@ -1,17 +1,27 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from donghu.forms import UserForm
-from donghu.utils import sendyzm
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
+from donghu.utils import sendyzm
+from donghu.forms import UserForm
+from donghu.models import Article, Module, Commentary, ReCommentary
+
 import json
+from donghu import utils
 
 # Create your views here.
 def index(request):
-    return render(request, 'donghu/index.html', {})
+    module_list = Module.objects.all()
+    modules = {}
+    for i in module_list:
+        modules[i] = (Article.objects.filter(module=i).order_by('-create_time')[:8])
+    context_dict = {"ip": request.META['REMOTE_ADDR'], 'category': 'index', 'modules':modules}
+
+    return render(request, 'donghu/index.html', context_dict)
 
 def register(request):
     registered = False
@@ -120,3 +130,91 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return HttpResponseRedirect('/')
+
+
+def category(request, category_name_slug, page=1):
+    context_dict = {'curpage':page, 'category': category_name_slug}
+    context_dict['modules'] = Module.objects.all()
+    page = page*10
+    article_list = Article.objects.filter(module=category_name_slug).order_by('-create_time')
+    items = len(article_list)
+    context_dict['pagenums'] = items//10 if items%10==0 else items//10+1
+    article_list = article_list[page-10:page]
+    context_dict['article_list'] = article_list
+    return render(request, 'donghu/category.html', context_dict)
+
+@login_required
+def add_article(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        try:
+            user = User.objects.get(username=request.user)
+        except Exception:
+            # print(Exception)
+            return HttpResponse('用户信息错误，请重新登录')
+        try:
+            module = Module.objects.get(name=request.POST.get('module'))
+        except:
+            return HttpResponse("分类丢了，请重新填写。")
+        c = Article(module=module, title=title,author=user, content=content, content_ismd=True)
+        c.save()
+        return category(request, module.name)
+    return render(request, 'donghu/index.html')
+
+def detail(request, category_name_slug, username, aid):
+
+    try:
+        a = Article.objects.get(id = aid)
+    except:
+        return render(request, 'donghu/404.html')
+
+    comment_list = Commentary.objects.filter(article=a)
+    recomment_list = {}
+    for comment in comment_list:
+        recomment_list[comment] = ReCommentary.objects.filter(to_id=comment)
+    context_dict = {"passage": a, 'comments': recomment_list, 'category': category_name_slug}
+    return render(request, 'donghu/passage.html', context_dict)
+
+@login_required
+def delete_article(request, aid, category_name_slug):
+    try:
+        a = Article.objects.get(id=aid)
+    except:
+        return HttpResponseRedirect('/404.html')
+    if request.user == a.author:
+        a.delete()
+
+    return HttpResponseRedirect('/category/'+category_name_slug)
+
+@login_required
+def delete_comment(request, category_name_slug, aid, cid):
+    try:
+        c = Commentary.objects.get(id=cid)
+    except:
+        return HttpResponseRedirect('/404.html')
+
+    # TODO(huilight@oulook.com): 管理员，版主等亦可删除
+    if request.user == c.author:
+        c.delete()
+
+    try:
+        a = Article.objects.get(id = aid)
+    except:
+        return HttpResponseRedirect('/404.html')
+
+    return detail(request, category_name_slug, a.author, aid)
+
+@login_required
+def submit_comment(request):
+    try:
+        article = Article.objects.get(id=request.POST.get('to'))
+    except:
+        return JsonResponse({'success':False})
+
+    content = request.POST.get('content')
+    content = utils.replace(content)
+    com = Commentary(article=article, author=request.user, content=content)
+    com.save()
+    return JsonResponse({'success':True})
+

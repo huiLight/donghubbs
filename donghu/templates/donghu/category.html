@@ -1,0 +1,78 @@
+{% extends 'donghu/base.html' %}
+
+{% load staticfiles %}
+
+{% block title_block %}
+    {{category_name}}
+{% endblock %}
+
+{% block head_block %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/category.css' %}">
+
+{% endblock %}
+
+{% block body_block %}
+    <div>
+        {% if article_list %}
+        <h3>Results</h3>
+        <!-- Display search results in an ordered list -->
+        <div class="listGroup">
+            {% for item in article_list %}
+                <div class="listGroupItem">
+                    <div>
+                    <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
+                    <span>
+                    {% if item.author == user %}
+  <!--                       <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a> -->
+                    {% endif %}
+                    <a href="">{{item.author.username}}</a>
+                    {{item.create_time|date:'m-d'}}
+                    </span>
+                    </div>
+<!--                     <p class="listGroupItemText">{{ item.content }}</p> -->
+                        
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div id="pageindex">
+    </div>
+
+    <!-- 编辑器 -->
+    <div class="editor">
+        <form  autocomplete="off" method="post" action="{% url 'donghu:addarticle'  %}">
+            {% csrf_token %}
+            <input type="text" name="module" value="{{category}}" style="display: none;">
+            <div>
+                <span>标题</span>
+                <input type="text" name="title" maxlength="48" required="" >
+                <input type="submit" class="submit"   value="发表">
+            </div>
+            <div>
+                <textarea required="" name="content"></textarea>
+            </div>
+        </form>
+    </div>
+    
+    <script type="text/javascript">
+        if ({{pagenums}}>1){
+            var link = ""
+            if({{curpage}}!=1){
+                link += "<a href='/category/{{category}}/page="+
+                ({{curpage}}-1)+"'>prev</a>"
+            }
+            for(var i=1; i<={{pagenums}}; i++){
+                link += "<a href='/category/{{category}}/page="+ i+"'>"+i+"</a>"
+            }
+            if({{curpage}}!={{pagenums}}){
+                link += "<a href='/category/{{category}}/page="+
+                ({{curpage}}+1)+"'>next</a>"
+            }
+            $("#pageindex").html(link)
+        }
+    </script>
+
+
+{% endblock %}

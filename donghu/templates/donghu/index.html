@@ -1,9 +1,36 @@
 {% extends 'donghu/base.html' %}
 {% load staticfiles %}
+
+{% block head_block %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+{% endblock %}
+
 {% block body_block %}
+
     {% if user.is_authenticated %}
         howdy {{ user.username }}!
     {% endif %}
-<h1>Hello, This is home page.</h1>
 
+    <h1>Hello, This is home page.</h1>
+    <p>Your ip is: {{ ip }}</p>
+    
+    <div class='block'>
+    {% for module, article_list in modules.items %}
+
+        <ul>
+            <h3>{{ module.name_zh }}
+                <span><a href="{% url 'donghu:category' module.name %}">more&gt;&gt;</a></span>
+            </h3>
+
+            {% for article in article_list %}
+                <li>
+                    <a href="{% url 'donghu:detail' module.name user.username article.id %}">{{article.title}}</a>
+                    <span>{{article.create_time|date:'m-d'}}</span>
+                </li>
+            {% endfor %}
+            
+        </ul>
+    {% endfor %}
+    <div class="clear"></div>
+    </div>
 {% endblock %}

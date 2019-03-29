@@ -25,7 +25,7 @@ SECRET_KEY = 'y5i3bzikb#+gfyzedne9l*4#gsy*k+1l^9cmy^8k5cklor)*52'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.43.66','127.0.0.1']
 
 
 # Application definition
@@ -118,6 +118,10 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Login
+LOGIN_URL = '/login/'
+
 
 
 # Static files (CSS, JavaScript, Images)

@@ -1,0 +1,37 @@
+<div class="nav">
+    <ul>
+        <li>
+        {% if act_mod == 'index' %}
+            <a class="selection" href="{% url 'donghu:index' %}">首页</a>
+        {% else %}
+            <a href="{% url 'donghu:index' %}">首页</a>
+        {% endif %}
+        </li>
+        {% if mods %}
+            {% for i in mods %}    
+                <li>
+                {% if i.name == act_mod %}
+                    <a class="selection" href="{% url 'donghu:category' i.name %}"> {{i.name_zh}}</a>
+                {% else %}
+                    <a href="{% url 'donghu:category' i.name %}">{{i.name_zh}}</a>
+                {% endif %}
+                </li>
+            {% endfor %}
+        {% endif %}
+        <span>
+            {% if not user.is_authenticated %}
+                <li><a href="{% url 'donghu:login' %}">登录</a></li>
+                <li><a href="{% url 'donghu:register' %}">注册</a></li>
+            {% else %}
+                <li class="alast"><a href="">{{user.username}}</a>
+                    <ul  class="dnav">
+                        <li><a href="">个人中心</a></li>
+                        <li><a href="">注销</a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'donghu:logout' %}">注销</a></li>
+            {% endif %}
+        </span>
+
+    </ul>
+</div>
