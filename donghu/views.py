@@ -168,6 +168,10 @@ def detail(request, category_name_slug, username, aid):
         a = Article.objects.get(id = aid)
     except:
         return render(request, 'donghu/404.html')
+    if not request.session.get('read{}'.format(aid)):
+        request.session['read{}'.format(aid)] = True
+        a.views += 1
+        a.save()
 
     comment_list = Commentary.objects.filter(article=a)
     recomment_list = {}

@@ -43,10 +43,18 @@ a:hover{
     text-align: left;
     position: relative;
 }
-.listGroupItem span{
+.info{
     text-align: right;
     position: absolute;
     right: 10px;
+}
+.listGroupItem .views{
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background: #f8f8f8;
 }
 .editor{
     width: 950px;

@@ -26,8 +26,9 @@
             {% for item in article_list %}
                 <div class="listGroupItem">
                     <div>
+                    <span class="views">{{ item.views }}</span>
                     <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
-                    <span>
+                    <span class="info">
                     {% if item.author == user %}
   <!--                       <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a> -->
                     {% endif %}
