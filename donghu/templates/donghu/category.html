@@ -12,9 +12,15 @@
 {% endblock %}
 
 {% block body_block %}
+    <form class="search-form" id="user_form" method="post"
+        action="{% url 'donghu:search' %}">
+        {% csrf_token %}
+        <input class="search-text" type="text" size="50" required="" name="search" placeholder="Search" id="query" />
+        <input class="btn btn-primary" type="submit" name="submit" value="搜索">
+    </form>
     <div>
         {% if article_list %}
-        <h3>Results</h3>
+
         <!-- Display search results in an ordered list -->
         <div class="listGroup">
             {% for item in article_list %}

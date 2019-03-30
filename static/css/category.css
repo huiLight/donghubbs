@@ -1,6 +1,32 @@
 a:hover{
     color:red;
 }
+
+.search-form{
+    width: 950px;
+    margin: 8px auto;
+    text-align: right;
+}
+/*.search-text, .btn{
+    line-height: 22px;
+
+}*/
+.search-text{
+    width: 240px;
+    height: 26px;
+    padding: 2px;
+    vertical-align: middle;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+.btn{
+    height: 26px;
+    line-height: 22px;
+    padding: 2px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
 .listGroup{
     /*border: 1px solid;*/
     width: 950px;

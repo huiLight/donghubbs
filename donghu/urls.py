@@ -3,7 +3,8 @@ from . import views
 
 app_name = 'donghu'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.user_login),
+    path('index/', views.index, name='index'),
     path('register/', views.register, name='register'),
     path('sendcode/', views.sendcode, name='sendcode'),
     path('sendcode/code', views.identifycode, name="identifycode"),
@@ -19,4 +20,6 @@ urlpatterns = [
         views.delete_article, name="delete"),
     path('comment/', views.submit_comment, name='comment'),
     path('delete/<slug:category_name_slug>/<int:aid>/<int:cid>/', views.delete_comment, name='delete_com'),
+    path('personal/<slug:username>/<int:uid>', views.personal, name='personal'),
+    path('search/', views.search, name='search'),
 ]

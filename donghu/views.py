@@ -218,3 +218,32 @@ def submit_comment(request):
     com.save()
     return JsonResponse({'success':True})
 
+@login_required
+def personal(request, username, uid):
+    '''
+    两个入口：
+        一、 自己查看自己的个人中心
+            显示个人资料入口
+            显示与我相关  建立相应表，有用户评论或 @我 时，在表中加入数据，另一表格有应已读标志位
+                用来确定是否有未读消息
+            列出我发表的文章等
+        二、 他人查看
+            列出发表的文章
+    '''
+    context_dict = {'is_visitor': True}
+    context_dict['alist'] = Article.objects.filter(author=uid).order_by('-create_time')
+    if request.user.id == uid:
+        context_dict['is_visitor'] = False
+        return render(request, 'donghu/personalpage.html', context_dict)
+
+    # 避免构造链接打开此页面
+    else:
+        return render(request, 'donghu/personalpage.html', context_dict)
+
+def search(request):
+    search_content = request.POST.get('search').strip()
+    if search_content == '':
+        return render(request, 'donghu/result.html')
+    results = Article.objects.filter(title__contains=search_content)
+    context_dict = {'results':results}
+    return render(request, 'donghu/result.html', context_dict)
