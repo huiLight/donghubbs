@@ -31,7 +31,7 @@
                     {% if item.author == user %}
   <!--                       <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a> -->
                     {% endif %}
-                    <a href="">{{item.author.username}}</a>
+                    <a href="{% url 'donghu:personal' item.author.username item.author.id %}">{{item.author.username}}</a>
                     {{item.create_time|date:'m-d'}}
                     </span>
                     </div>
