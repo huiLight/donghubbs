@@ -117,13 +117,15 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect('/')
+                return HttpResponseRedirect('/index/')
             else:
                 return HttpResponse("Your account is disabled.")
         else:
             print("Invalid login details: {0}, {1}".format(username, password))
             return render(request, 'donghu/login.html', {'errors': '账号或密码错误！'})
     else:
+        if request.user.username!='':
+            return HttpResponseRedirect('/index/')
         return render(request, 'donghu/login.html', {})
 
 @login_required
