@@ -1,6 +1,7 @@
 {% extends 'donghu/base.html' %}
 
 {% load staticfiles %}
+{% load donghu_template_filters %}
 
 {% block title_block %}
     {{category_name}}
@@ -26,7 +27,9 @@
             {% for item in article_list %}
                 <div class="listGroupItem">
                     <div>
-                    <span class="views">{{ item.views }}</span>
+
+                        <span class="views">{{ item.views|transform }}</span>
+
                     <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
                     <span class="info">
                     {% if item.author == user %}
