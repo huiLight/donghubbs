@@ -2,9 +2,13 @@ from email import encoders
 from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
+from donghu.models import UserProfile
+from django.utils import timezone
 
+import datetime
 import random
 import smtplib
+import pytz
 
 
 
@@ -60,6 +64,40 @@ def replace(stri):
     for old, new in ascii_list.items():
         stri = stri.replace(old, new)
     return stri
+
+def suspend(user):
+    """
+    封号处理，
+    1. 将用户 is_active 设置为false
+    2. 加入封禁时间
+    """
+    user.is_active = False
+    user.save()
+    try:
+        up = UserProfile.objects.get_or_create(user=user)[0]
+    except:
+        pass
+    up.sustime = timezone.now() #不然会出问题
+    up.save()
+
+def can_login(user):
+    """
+    检查封号是否到期
+    TODO: 直接返回封号时间，具体时间运算由js进行
+    """
+    try:
+        up = UserProfile.objects.get_or_create(user=user)[0]
+    except:
+        return False
+    time = up.sustime
+    delta = datetime.datetime.now().replace(tzinfo=(pytz.timezone('Asia/Shanghai'))) - time
+    endtime = time + datetime.timedelta(days=1) - datetime.datetime.now().replace(tzinfo=(pytz.timezone('Asia/Shanghai')))
+    endtime = endtime.total_seconds()
+    if delta.days >= 1:
+        user.is_active = True
+        return True
+    return False, "{:.0f}小时{:.0f}分{:.0f}秒".format(endtime//60//60, endtime//60%60, endtime%60)
+
 
 if __name__ == '__main__':
     str1 = '<abcdeft>'

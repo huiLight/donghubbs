@@ -1,4 +1,5 @@
 from django import template
+from django.contrib.auth.models import User
 
 register = template.Library()
 
@@ -14,3 +15,8 @@ def transform(value):
     else:
         result = value
     return result
+
+@register.filter
+def has_permission(user, category):
+    # 不要忘记加 donghu. ,用户只拥有该应用下的权限
+    return user.has_perm('donghu.have_permission_'+category)

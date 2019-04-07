@@ -1,14 +1,24 @@
-{% extends 'donghu/base.html' %}
+<!DOCTYPE html>
 {% load staticfiles %}
-
-{% block body_block %}
-<h1>Login</h1>
-    {{ errors }}
-<form id="login" method="post" action="/login/" >
-    {% csrf_token %}
-    <input type="text" name="username" required="" value="" placeholder="用户名">
-    <input type="password" name="password" required="" placeholder="请输入密码">
-    <input type="submit" name="submit" value="Login">
-</form>
-
-{% endblock %}
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css'%}">
+</head>
+<body>
+    <canvas width="950px" height="520px" id="wall"></canvas>
+    <div class="login">
+        <div>{{ errors }}</div>
+    <form id="login" method="post" action="/login/" >
+        {% csrf_token %}
+        <input type="text" name="username" required="" value="" placeholder="用户名">
+        <input type="password" name="password" required="" placeholder="密码">
+        <input class="submit" type="submit" name="submit" value="登录">
+    <a href="{% url 'donghu:register' %}">注册</a>
+    <a href="{% url 'donghu:index' %}">游客</a>
+    </form>
+    </div>
+    <div class="clear"></div>
+    <script type="text/javascript" src="{% static 'js/wall.js' %}"></script>
+</body>
+</html>

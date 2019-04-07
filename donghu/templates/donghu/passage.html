@@ -1,5 +1,7 @@
 {% extends 'donghu/base.html' %}
 {% load staticfiles %}
+{% load donghu_template_filters %}
+
 {% block title_block %}
     {{ passage.title }}
 {% endblock %}
@@ -21,8 +23,8 @@
             <div id="editormd-view" class="post-content">
                 <textarea id="append-test" style="display: none;">{{passage.content}}</textarea>
                 <div>
-                    {% if user == passage.author %}
-                        <a href="/category/delete/{{passage.id}}/{{category}}">删除</a>
+                    {% if user == passage.author or user|has_permission:category %}
+                        <a class="delete">删除</a>
                     {% endif %}
                     {{ passage.create_time|date:'y-m-d H:i' }}
                     <a id="replay">回复</a>
@@ -42,8 +44,8 @@
                         {{comment.content}}
                     {% endautoescape %}
                     <div>
-                        {% if user == comment.author %}
-                            <a href="/delete/{{category}}/{{passage.id}}/{{comment.id}}">删除</a>
+                        {% if user == passage.author or user == comment.author or user|has_permission:category %}
+                            <a  class="delete-comment" onclick="deleteComment({{comment.id}})" >删除</a>
                         {% endif %}
                         {{ comment.create_time|date:'y-m-d H:i' }}
                     <a href="#">回复</a>
@@ -69,6 +71,23 @@
             <textarea id="comment-content"></textarea>
 
     </div>
+    <div class="mask">
+        
+    </div>
+    <div class="confirm" id="confirm">
+        <div>确定删除?</div>
+        <div>
+            
+            {% if user|has_permission:category %}
+                <button id="ensure" class="btn">仅删除</button>
+                <button id="suspend" class="btn">删除并封号</button>
+            {% else %}
+                <button id="ensure" class="btn">确定</button>
+            {% endif %}
+
+            <button id="cancel" class="btn">取消</button>
+        </div>
+    </div>
     <!-- <script src="js/zepto.min.js"></script>
     <script>        
         var jQuery = Zepto;  // 为了避免修改flowChart.js和sequence-diagram.js的源码，所以使用Zepto.js时想支持flowChart/sequenceDiagram就得加上这一句
@@ -87,6 +106,8 @@
     <script type="text/javascript">
         var testEditormdView;
         var testEditor;
+        var deleteId;
+        var commentId;
         $(function() {
                 console.log('ok')
                 testEditormdView = editormd.markdownToHTML("editormd-view", {
@@ -165,9 +186,65 @@
                 },
                 error:function(){
                     alert('提交失败')
-                }
+                },
             });
         }
+
+    });
+
+    $(".delete").click(function(){
+        $(".mask").show();
+        $(".confirm").show();
+        deleteId = 0;
+    });
+
+    function deleteComment(id){
+        $(".mask").show();
+        $(".confirm").show();
+        deleteId = 1;
+        commentId = id;
+    };
+
+    $("#cancel").click(function(){
+        $(".mask").hide();
+        $(".confirm").hide();
+    });
+
+    $("#ensure").click(function(){
+        if (deleteId == 0){
+            $(window).attr('location','/category/delete/{{passage.id}}/{{category}}');
+        }else if(deleteId == 1){
+            $(window).attr('location','/delete/{{category}}/{{passage.id}}/'+ commentId);
+        }
+    });
+
+    $("#suspend").click(function(){
+        var addr;
+        if (deleteId == 0){
+            addr = '/category/delete/{{passage.id}}/{{category}}/';
+        }else if(deleteId == 1){
+            addr = '/delete/{{category}}/{{passage.id}}/'+ commentId+'/';
+        }
+        //返回数据过大会返回500
+        $.ajax({
+                url: addr,
+                headers:{"X-CSRFToken":$.cookie('csrftoken')},
+                data: {operate:'suspend'},
+                dataType: "json",
+                type: "post",
+                async: false,
+                chache: false,
+                success: function(state){
+                    if(state['success']){
+                        window.location.href='./'+{{passage.id}}
+                    }else{
+                        alert("评论迷路了")
+                    }
+                },
+                error:function(){
+                    alert('提交失败')
+                },
+        });
 
     });
 

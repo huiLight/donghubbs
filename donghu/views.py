@@ -113,13 +113,16 @@ def user_login(request):
 
 
         user = authenticate(username=username, password=password)
-
         if user:
             if user.is_active:
                 login(request, user)
                 return HttpResponseRedirect('/index/')
             else:
-                return HttpResponse("Your account is disabled.")
+                if utils.can_login(user)[0]:
+                    login(request, user)
+                    return HttpResponseRedirect('/index/')
+                else:
+                    return render(request, 'donghu/login.html', {'errors': '因违规操作，您的账号暂时无法登录请在'+utils.can_login(user)[1]+'后登录'})
         else:
             print("Invalid login details: {0}, {1}".format(username, password))
             return render(request, 'donghu/login.html', {'errors': '账号或密码错误！'})
@@ -147,6 +150,11 @@ def category(request, category_name_slug, page=1):
 
 @login_required
 def add_article(request):
+    # 如果账号已经被禁
+    if not request.user.is_active:
+        logout(request)
+        return render(request, 'donghu/login.html', {'errors': '因违规操作，您的账号暂时无法登录'})
+
     if request.method == 'POST':
         title = request.POST.get('title')
         content = request.POST.get('content')
@@ -188,8 +196,18 @@ def delete_article(request, aid, category_name_slug):
         a = Article.objects.get(id=aid)
     except:
         return HttpResponseRedirect('/404.html')
-    if request.user == a.author:
+    
+    user = a.author
+
+    if (request.user == a.author or 
+    request.user.has_perm('donghu.have_permission_'+category_name_slug)):
         a.delete()
+
+    # 封号
+    if (request.method == 'POST' and 
+    request.user.has_perm('donghu.have_permission_'+category_name_slug)):
+        utils.suspend(user) # 暂封账号
+        return JsonResponse({'success':True})
 
     return HttpResponseRedirect('/category/'+category_name_slug)
 
@@ -200,9 +218,19 @@ def delete_comment(request, category_name_slug, aid, cid):
     except:
         return HttpResponseRedirect('/404.html')
 
+
+    user = c.author
+
     # TODO(huilight@oulook.com): 管理员，版主等亦可删除
-    if request.user == c.author:
+    if (request.user == c.author or
+    request.user.has_perm('donghu.have_permission_'+category_name_slug)):
         c.delete()
+
+    # 封号
+    if (request.method == 'POST' and 
+    request.user.has_perm('donghu.have_permission_'+category_name_slug)):
+        utils.suspend(user) # 暂封账号
+        return JsonResponse({'success':True})
 
     try:
         a = Article.objects.get(id = aid)

@@ -86,6 +86,9 @@ DATABASES = {
     }
 }
 
+# 默认值为django.contrib.auth.backends.ModelBackend，当用户is_active=False时验证系统返回None
+# 改为此项，则不做此限制
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -128,3 +131,11 @@ LOGIN_URL = '/login/'
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATICFILES_DIRS = [STATIC_DIRS, ]
 STATIC_URL = '/static/'
+
+
+# set Browser-Length 
+# It is disabled by default
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Only used when above variable is False
+# It is enabled by default
+SESSION_COOKIE_AGE = 30 * 60
