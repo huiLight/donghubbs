@@ -1,14 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.db.models import Q
 
 from donghu.utils import sendyzm
 from donghu.forms import UserForm
 from donghu.models import Article, Module, Commentary, ReCommentary
+from donghu.models import Question, Choice, Voter
 
 import json
 from donghu import utils
@@ -18,8 +21,15 @@ def index(request):
     module_list = Module.objects.all()
     modules = {}
     for i in module_list:
-        modules[i] = (Article.objects.filter(module=i).order_by('-create_time')[:8])
-    context_dict = {"ip": request.META['REMOTE_ADDR'], 'category': 'index', 'modules':modules}
+        if i.name == 'vote':
+            modules[i] = (Question.objects.all().order_by('-create_time')[:8])
+        else:
+            modules[i] = (Article.objects.filter(module=i).order_by('-create_time')[:8])
+
+
+    hot_article_list = Article.objects.all().order_by('-likes')[:8]
+
+    context_dict = {'category': 'index', 'modules':modules, 'hot_article_list':hot_article_list}
 
     return render(request, 'donghu/index.html', context_dict)
 
@@ -140,12 +150,20 @@ def user_logout(request):
 def category(request, category_name_slug, page=1):
     context_dict = {'curpage':page, 'category': category_name_slug}
     context_dict['modules'] = Module.objects.all()
+
     page = page*10
-    article_list = Article.objects.filter(module=category_name_slug).order_by('-create_time')
+
+    if category_name_slug == 'vote':
+        article_list = Question.objects.all().order_by('-create_time')
+    else:
+        article_list = Article.objects.filter(module=category_name_slug).order_by('-create_time')
+    
     items = len(article_list)
     context_dict['pagenums'] = items//10 if items%10==0 else items//10+1
+    
     article_list = article_list[page-10:page]
     context_dict['article_list'] = article_list
+    
     return render(request, 'donghu/category.html', context_dict)
 
 @login_required
@@ -192,6 +210,16 @@ def detail(request, category_name_slug, username, aid):
 
 @login_required
 def delete_article(request, aid, category_name_slug):
+    
+    if category_name_slug == 'vote':
+        try:
+            a = Question.objects.get(pk = aid)
+        except:
+            return HttpResponseRedirect('/404.html')
+        else:
+            a.delete()
+        return HttpResponseRedirect('/category/vote')
+
     try:
         a = Article.objects.get(id=aid)
     except:
@@ -265,11 +293,10 @@ def personal(request, username, uid):
             列出发表的文章
     '''
     context_dict = {'is_visitor': True}
-    context_dict['alist'] = Article.objects.filter(author=uid).order_by('-create_time')
+    context_dict['article_list'] = Article.objects.filter(author=uid).order_by('-create_time')
     if request.user.id == uid:
         context_dict['is_visitor'] = False
         return render(request, 'donghu/personalpage.html', context_dict)
-
     # 避免构造链接打开此页面
     else:
         return render(request, 'donghu/personalpage.html', context_dict)
@@ -278,6 +305,80 @@ def search(request):
     search_content = request.POST.get('search').strip()
     if search_content == '':
         return render(request, 'donghu/result.html')
-    results = Article.objects.filter(title__contains=search_content)
-    context_dict = {'results':results}
+    results = Article.objects.filter(Q(title__contains=search_content)|Q(content__contains=search_content)).order_by('-create_time')
+
+    context_dict = {'keywords':search_content, 'results':results}
     return render(request, 'donghu/result.html', context_dict)
+
+# -----------------------vote----------------------------
+
+
+def vote_detail(request, question_id):
+
+    q = get_object_or_404(Question, pk=question_id)
+
+    cho = Choice.objects.filter(question=q)
+
+    context_dict = {'question':q, 'choice': cho}
+    return render(request, 'donghu/vote_detail.html', context_dict)
+
+# show the results of vote
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    res = [['votes', 'item']]
+    for c in question.choice_set.all():
+        d = [c.votes, c.choice_text]
+        res.append(d)
+    return render(request, 'donghu/vote_results.html', {'question': question, 'result':res})
+
+@login_required
+def vote(request, question_id):
+    """
+    """
+    question = get_object_or_404(Question, pk=question_id)
+    
+    vot = Voter.objects.filter(question=question, voter_id=request.user)
+    if len(vot) != 0:
+        return render(request, 'donghu/vote_detail.html',{
+                'question': question,
+                'error_message': "您已投过票，请不要重复投票。",
+                })
+
+    question.vote_times += 1
+    question.save()
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        # Redisplay the question voting form.
+        return render(request, 'donghu/vote_detail.html', {
+            'question': question,
+            'error_message': "You didn't select a choice.",
+        })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+
+        try:
+            Voter.objects.create(question=question, choice=selected_choice, voter_id=request.user)
+        except:
+            return render(request, 'donghu/vote_detail.html',{
+                'question': question,
+                'error_message': "用户错误，请重试！",
+                })
+  
+        return HttpResponseRedirect(reverse('donghu:results', args=(question.id,)))
+
+@login_required
+def add_vote(request):
+    if request.method == 'POST':
+        title = request.POST.get("title")
+        count = int(request.POST.get("count"))
+
+        q = Question.objects.create(title=title, author=request.user)
+        for i in range(count):
+            content = request.POST.get("item{}".format(i+1))
+            if content != '':
+                Choice.objects.create(question=q, choice_text=content)
+        return HttpResponseRedirect(reverse('donghu:vote_detail', args=(q.id,)))
+
+    return render(request, 'donghu/addvote.html')

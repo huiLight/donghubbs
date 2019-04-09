@@ -1,0 +1,19 @@
+.error{
+    margin: 10px 0px;
+}
+
+.wrap{
+    width: 950px;
+    min-height: 580px;
+    text-align: left;
+    margin: 20px 300px;
+}
+.list{
+    width: 320px;
+    margin: 4px 0px;
+    text-align: left;
+    
+}
+.item{
+    margin: 8px 0px;
+}

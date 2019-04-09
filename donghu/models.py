@@ -9,7 +9,9 @@ class UserProfile(models.Model):
     head = models.ImageField(upload_to='profile_images', blank=True, null=True)
     gender = models.CharField(max_length=3, blank=True, null=True)
     motto = models.CharField(max_length=40, blank=True, null=True)
-    sustime = models.DateTimeField(null=True)
+    sustime = models.DateTimeField(null=True) # 封号开始时间
+    exper = models.IntegerField(default=0)
+    grade = models.IntegerField(default=1)
 
     def __str__(self):
         return self.user.username
@@ -65,3 +67,32 @@ class Message(models.Model):
     id_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name='id_from')
     id_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='id_to')
     action = models.IntegerField()
+
+
+# 以下为投票字段
+
+class Question(models.Model):
+    title = models.CharField(max_length=200)
+    create_time = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    vote_times = models.IntegerField(default=0)
+    views = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.choice_text
+
+class Voter(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    voter_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} | {}'.format(self.voter_id.username, self.choice.choice_text)

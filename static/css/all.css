@@ -93,3 +93,6 @@ ul.dnav{
     display: block;
 }
 /*----------END----------*/
+.error{
+    color: red;
+}

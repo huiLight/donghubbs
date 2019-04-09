@@ -138,4 +138,4 @@ STATIC_URL = '/static/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # Only used when above variable is False
 # It is enabled by default
-SESSION_COOKIE_AGE = 30 * 60
+SESSION_COOKIE_AGE = 24 * 60 * 60

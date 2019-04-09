@@ -1,0 +1,13 @@
+{% extends 'donghu/base.html' %}
+{% load staticfiles %}
+
+{% block body_block %}
+    {% if not is_visitor %}
+        ----------------------
+    {% endif %}
+    {% for i in alist %}
+        <div>
+            {{ i.title }} {{i.create_time|date:'m-d'}}
+        </div>
+    {% endfor %}
+{% endblock %}

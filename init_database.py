@@ -21,7 +21,8 @@ def init():
         {"name":'jobs', "name_zh": '兼职招聘'},
         {"name":'experiencing', "name_zh": '你问我答'},
         {"name":'lost', "name_zh": '失物招领'},
-        {"name":'resources', "name_zh": '资源共享'},        
+        {"name":'resources', "name_zh": '资源共享'},
+        {"name":'vote', "name_zh":'投票'},        
     ]
 
     python_article = [

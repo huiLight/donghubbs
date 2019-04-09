@@ -13,9 +13,16 @@
 {% endblock %}
 
 {% block body_block %}
+    <div class="body-block">
     <form class="search-form" id="user_form" method="post"
         action="{% url 'donghu:search' %}">
         {% csrf_token %}
+        {% if category == 'vote' %}
+        <a href="{% url 'donghu:add_vote' %}" class="btn vote">
+            添加投票
+        </a>
+        {% endif %}
+
         <input class="search-text" type="text" size="50" required="" name="search" placeholder="Search" id="query" />
         <input class="btn btn-primary" type="submit" name="submit" value="搜索">
     </form>
@@ -28,14 +35,19 @@
                 <div class="listGroupItem">
                     <div>
 
+                    {% if category == 'vote' %}
+                        <span class="views">{{ item.vote_times|transform }}</span>
+                        <a href="{% url 'donghu:vote_detail' item.id %}">{{ item.title }}</a>
+                    {% else %}
                         <span class="views">{{ item.views|transform }}</span>
-
-                    <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
-                    <span class="info">
-                    {% if item.author == user %}
-  <!--                       <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a> -->
+                        <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
                     {% endif %}
-                    <a href="{% url 'donghu:personal' item.author.username item.author.id %}">{{item.author.username}}</a>
+
+                    <span class="info">
+                    {% if item.author == user and category == 'vote' %}
+                        <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a>
+                    {% endif %}
+                    <a class="username" href="{% url 'donghu:personal' item.author.username item.author.id %}">{{item.author.username}}</a>
                     {{item.create_time|date:'m-d'}}
                     </span>
                     </div>
@@ -49,7 +61,7 @@
     
     <div id="pageindex">
     </div>
-
+    {% if category != 'vote' %}
     <!-- 编辑器 -->
     <div class="editor">
         <form  autocomplete="off" method="post" action="{% url 'donghu:addarticle'  %}">
@@ -83,6 +95,6 @@
             $("#pageindex").html(link)
         }
     </script>
-
-
+    {% endif %}
+</div>
 {% endblock %}

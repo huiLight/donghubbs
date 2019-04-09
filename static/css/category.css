@@ -1,3 +1,8 @@
+.body-block{
+    min-height: 580px;
+    margin: 0 auto;
+}
+
 a:hover{
     color:red;
 }
@@ -25,6 +30,7 @@ a:hover{
     padding: 2px;
     vertical-align: middle;
     margin-right: 8px;
+    text-align: center;
 }
 
 .listGroup{
@@ -101,4 +107,9 @@ a:hover{
     font-size: 14px;
     color:navy;
 }
-
+/*
+.username{
+    min-width: 60px;
+    display: inline-block;
+}
+*/

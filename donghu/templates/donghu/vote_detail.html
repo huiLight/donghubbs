@@ -1,0 +1,30 @@
+{% extends 'donghu/base.html' %}
+{% load staticfiles %}
+
+{% block head_block %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/vote_detail.css' %}">
+{% endblock %}
+
+{% block body_block %}
+<div class="wrap">
+    <h1>{{ question.title }}</h1>
+
+{% if error_message %}<p class="error"><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form  action="{% url 'donghu:vote' question.id %}" method="post">
+{% csrf_token %}
+<div class="list">
+{% for choice in question.choice_set.all %}
+    <div class="item">
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+    </div>
+{% endfor %}
+<div>
+<input class="btn" type="submit" value="投票">
+<a class="btn" href="{% url 'donghu:results' question.id %}" >查看结果</a>
+</div>
+</div>
+</form>
+</div>
+{% endblock %}

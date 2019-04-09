@@ -6,15 +6,21 @@
 {% endblock %}
 
 {% block body_block %}
-
-    {% if user.is_authenticated %}
-        howdy {{ user.username }}!
-    {% endif %}
-
-    <h1>Hello, This is home page.</h1>
-    <p>Your ip is: {{ ip }}</p>
     
     <div class='block'>
+        <ul>
+                <h3>最热
+                    <span><a >more&gt;&gt;</a></span>
+                </h3>
+
+                {% for article in hot_article_list %}
+                    <li>
+                        <a href="{% url 'donghu:detail' article.module.name article.author.username article.id %}">{{article.title}}</a>
+                        <span>{{article.create_time|date:'m-d'}}</span>
+                    </li>
+                {% endfor %}
+                
+        </ul>
     {% for module, article_list in modules.items %}
 
         <ul>
@@ -24,7 +30,12 @@
 
             {% for article in article_list %}
                 <li>
-                    <a href="{% url 'donghu:detail' module.name article.author.username article.id %}">{{article.title}}</a>
+
+                    {% if module.name == 'vote' %}
+                        <a href="{% url 'donghu:vote_detail' article.id %}">{{ article.title }}</a>
+                    {% else %}
+                        <a href="{% url 'donghu:detail' module.name article.author.username article.id %}">{{article.title}}</a>
+                    {% endif %}
                     <span>{{article.create_time|date:'m-d'}}</span>
                 </li>
             {% endfor %}

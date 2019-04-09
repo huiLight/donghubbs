@@ -1,0 +1,66 @@
+{% extends 'donghu/base.html' %}
+{% load staticfiles%}
+{% block head_block %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<style type="text/css">
+    .wrap{
+        width: 950px;
+        min-height: 560px;
+        margin: 20px auto;
+        text-align: left;
+    }
+    .title{
+        margin: 8px 0;
+        width: 420px;
+    }
+    input{
+        margin: 8px;
+    }
+    label{
+        display: inline-block;
+        min-width: 16px;
+    }
+    #but{
+        display: inline-block;
+        margin: 8px 8px;
+    }
+</style>
+{% endblock %}
+
+{% block body_block %}
+    
+    <div class='wrap'>
+        <form autocomplete="off" method="post" action="{% url 'donghu:add_vote' %}">
+            {% csrf_token %}
+            <div><label>标题：</label></div>
+            <input class="title" type="text" name="title" required="">
+            <div><label>投票项：</label></div>
+            <div>
+                <label>1</label><input type="text" name="item1" required="">
+            </div>
+            <div>
+                <label>2</label><input type="text" name="item2" required="">
+            </div>
+            <div>
+                <label>3</label><input type="text" name="item3">
+            </div>
+            <div id="more"></div>
+            <input id="count" type="text" style="display:none;" name="count" value="3">
+            <a class="btn" id="but">添加更多</a>
+            <input class="btn" type="submit" value="提交">
+        </form>
+    </div>
+    <script type="text/javascript">
+        var index = 4;
+        
+        $("#but").click(function(){
+            var content = '';
+            for (var i=0; i<3; i++,index++){
+                content += '<div><label>'+index+'</label><input type="text" name="item'+index+'"></div>\n';
+            }
+            $("#count").val(index);
+            $("#more").append(content);
+        });
+    </script>
+
+{% endblock %}
