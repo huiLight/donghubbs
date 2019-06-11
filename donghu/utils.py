@@ -5,6 +5,9 @@ from email.utils import parseaddr, formataddr
 from donghu.models import UserProfile
 from django.utils import timezone
 
+from django.core.mail import send_mail
+from donghubbs.settings import EMAIL_FROM
+
 import datetime
 import random
 import smtplib
@@ -28,34 +31,19 @@ def sendyzm(studentid):
         若发送成功，返回True和发送的验证码
         否则返回False和None
     '''
-    from_addr = '2014204388@lcu.edu.cn'
-    # password = input('Password: ')
-    to_addr = studentid.split('@')[0] + '@lcu.edu.cn'
-    smtp_server = 'mail.lcu.edu.cn'
+    
+    email_to = (studentid.split('@')[0] + '@qq.com',)
+
 
     yzm = get_code()
-
-    msg = MIMEText('您的验证码是：'+yzm+".请勿告知他人", 'plain', 'utf-8')
-    # msg['From'] = _format_addr('管理员 <%s>' % from_addr)
-    # msg['To'] = _format_addr('用户 <%s>' % to_addr)
-    msg['From'] = from_addr
-    msg['To'] = to_addr
-    msg['Subject'] = Header('验证码', 'utf-8').encode()
-    print(msg)
-    server = smtplib.SMTP(smtp_server, 25)
-    server.set_debuglevel(1)
-    server.login(from_addr, 'qrbJN5j7ta8PJwtq')
-
+    send_title = 'DonghuBBS验证码'
+    send_massage = '您正在注册东湖论坛，验证码是:{0}。请勿告知他人。'.format(yzm)
     try:
-        server.sendmail(from_addr, [to_addr], msg.as_string())
-        server.quit()
-    except Exception as e:
-        print('--------------')
-        print(to_addr)
-        print(e)
-        return False, None
+        send_status = send_mail(send_title, send_massage, EMAIL_FROM, email_to)
+    except:
+        return False, yzm
+    return send_status, yzm
 
-    return True, yzm
 
 # 将输入的html标签转义，以防止可能存在的注入及其它安全问题
 def replace(stri):
@@ -95,13 +83,14 @@ def can_login(user):
     endtime = endtime.total_seconds()
     if delta.days >= 1:
         user.is_active = True
-        return True
+        return (True, )
     return False, "{:.0f}小时{:.0f}分{:.0f}秒".format(endtime//60//60, endtime//60%60, endtime%60)
 
 
 if __name__ == '__main__':
-    str1 = '<abcdeft>'
-    str2 = replace(str1)
-    print(str1, str2)
-    str1.replace('<', '&')
-    print(str1)
+    # str1 = '<abcdeft>'
+    # str2 = replace(str1)
+    # print(str1, str2)
+    # str1.replace('<', '&')
+    # print(str1)
+    print(sendyzm('3243148844@qq.com'))

@@ -25,12 +25,34 @@
 
         <input class="search-text" type="text" size="50" required="" name="search" placeholder="Search" id="query" />
         <input class="btn btn-primary" type="submit" name="submit" value="搜索">
+        <a class="btn" href="{% url 'donghu:advanced_search' %}" style="margin-left: -8px">高级搜索</a>
     </form>
     <div>
         {% if article_list %}
 
         <!-- Display search results in an ordered list -->
         <div class="listGroup">
+            {% for item in top_list %}
+                 <div class="listGroupItem">
+                    <div>
+                    {% if category == 'vote' %}
+                        <span class="views">{{ item.vote_times|transform }}</span>
+                        <a href="{% url 'donghu:vote_detail' item.id %}">{{ item.title }}</a>
+                    {% else %}
+                                <span style="color:red">[置顶]</span>
+                                <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
+                            <span class="info">
+                              {% if item.author == user and category == 'vote' %}
+                                 <a class='delete' href="{% url 'donghu:delete' item.id category %}">删除</a>
+                                {% endif %}
+                             <a class="username" href="{% url 'donghu:personal' item.author.username item.author.id %}">{{item.author.username}}</a>
+                              {{item.create_time|date:'m-d'}}
+                        </span>
+                    {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
             {% for item in article_list %}
                 <div class="listGroupItem">
                     <div>
@@ -39,8 +61,15 @@
                         <span class="views">{{ item.vote_times|transform }}</span>
                         <a href="{% url 'donghu:vote_detail' item.id %}">{{ item.title }}</a>
                     {% else %}
+                        {% if not item.is_sticky %}
                         <span class="views">{{ item.views|transform }}</span>
-                        <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
+                        {% if item.is_highlight %}
+                                <span style="color:red; font-weight: 700;">精</span>
+                                <a style="color: #996600" href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
+                        {% else %}
+                                <a href="{% url 'donghu:detail' category item.author item.id %}">{{ item.title }}</a>
+                        {% endif %}
+                        {% endif %}
                     {% endif %}
 
                     <span class="info">
@@ -69,11 +98,11 @@
             <input type="text" name="module" value="{{category}}" style="display: none;">
             <div>
                 <span>标题</span>
-                <input type="text" name="title" maxlength="48" required="" >
-                <input type="submit" class="submit"   value="发表">
+                <input id="title" type="text" name="title" maxlength="48" required="" >
+                <input id="submit" type="submit" class="submit"   value="发表">
             </div>
             <div>
-                <textarea required="" name="content"></textarea>
+                <textarea id="content" required="" name="content"></textarea>
             </div>
         </form>
     </div>

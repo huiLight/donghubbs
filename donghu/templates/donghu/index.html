@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block body_block %}
-    
     <div class='block'>
         <ul>
                 <h3>最热
@@ -15,7 +14,7 @@
 
                 {% for article in hot_article_list %}
                     <li>
-                        <a href="{% url 'donghu:detail' article.module.name article.author.username article.id %}">{{article.title}}</a>
+                        <a href="{% url 'donghu:detail' article.module.name article.author.username article.id %}">{{article.title|slice:":15" }}</a>
                         <span>{{article.create_time|date:'m-d'}}</span>
                     </li>
                 {% endfor %}
@@ -32,9 +31,9 @@
                 <li>
 
                     {% if module.name == 'vote' %}
-                        <a href="{% url 'donghu:vote_detail' article.id %}">{{ article.title }}</a>
+                        <a href="{% url 'donghu:vote_detail' article.id %}">{{ article.title|slice:":15" }}</a>
                     {% else %}
-                        <a href="{% url 'donghu:detail' module.name article.author.username article.id %}">{{article.title}}</a>
+                        <a href="{% url 'donghu:detail' module.name article.author.username article.id %}">{{article.title|truncatechars:17}}</a>
                     {% endif %}
                     <span>{{article.create_time|date:'m-d'}}</span>
                 </li>

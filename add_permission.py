@@ -36,5 +36,5 @@ def add_groups():
         g.permissions.add(permission)
 
 if __name__ == '__main__':
-    # add_permissions()
+    add_permissions()
     add_groups()

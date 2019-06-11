@@ -1,0 +1,67 @@
+<form autocomplete="off" method="post" action="/personal/profile" enctype="multipart/form-data">
+    {% csrf_token %}
+    <dir>
+        <label>头像:</label>
+        <input type="file" name="file" id="file0">
+        <span>支持jpg、jpeg、gif、png格式图片</span>
+    <img src="/static/{{pro.head}}" id="img0" style="width: 100px;height: 100px;">
+
+    </dir>
+    <dir>
+    用户名：<input type="text" name="username" value="{{pro.user.username}}">
+    </dir>
+    <dir>
+        <label>性别：</label>
+        <input type="radio" name="gender" value="男" checked="true">
+        <label>男</label>
+        <input type="radio" name="gender" value="女">
+        <label>女</label>
+    </dir>
+    <dir>
+        <label>个人说明：</label>
+        <input type="text" name="motto" value="{{pro.motto}}">
+    </dir>
+    <dir>
+        <label></label>
+        <input class="btn" type="submit" name="submit" value="修改">
+    </dir>
+</form>
+
+<script type="text/javascript"> 
+function checkname(filename){
+     var arr = ["jpg","jpeg","png","gif"];
+     //取出上传文件的扩展名
+     var index = filename.lastIndexOf(".");
+     var ext = filename.substr(index+1);
+     //循环比较
+     for(var i=0;i<arr.length;i++){
+      if(ext == arr[i]){
+       return true; //一旦找到合适的，立即退出循环
+      }
+     }
+     return false;
+}
+$("#file0").change(function(){
+        if ( !checkname($("#file0").val())){
+            alert("请选择正确的文件");
+            $("#file0").val('');
+            return;
+        }
+         var objUrl = getObjectURL(this.files[0]);//获取文件信息
+
+          if (objUrl) {
+          $("#img0").attr("src", objUrl);
+         }
+});
+function getObjectURL(file) {
+         var url = null;
+         if (window.createObjectURL!=undefined) {
+          url = window.createObjectURL(file);
+         } else if (window.URL!=undefined) { // mozilla(firefox)
+          url = window.URL.createObjectURL(file);
+         } else if (window.webkitURL!=undefined) { // webkit or chrome
+          url = window.webkitURL.createObjectURL(file);
+         }
+         return url;
+        }
+</script>

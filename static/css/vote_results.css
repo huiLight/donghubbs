@@ -36,3 +36,25 @@
   color:#000000;
   background-color:#fafafa;
 }
+
+#main{
+  width: 600px;
+  height: 400px;
+}
+
+@media screen and (max-width: 550px){
+    .wrap{
+        width: 100%;
+        margin: 0 10px;
+    }
+    .wrap a{
+      margin: 0;
+    }
+    #customers{
+      margin: 10px 0;
+    }
+    #main{
+      width: 500px;
+      height: 400px;
+    }
+}

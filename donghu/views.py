@@ -4,12 +4,15 @@ from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.db.models import Q
+from django.urls import reverse_lazy
+from django.db.models import Q, F
 
 from donghu.utils import sendyzm
 from donghu.forms import UserForm
+from donghu.models import UserProfile
 from donghu.models import Article, Module, Commentary, ReCommentary
 from donghu.models import Question, Choice, Voter
 
@@ -157,13 +160,15 @@ def category(request, category_name_slug, page=1):
         article_list = Question.objects.all().order_by('-create_time')
     else:
         article_list = Article.objects.filter(module=category_name_slug).order_by('-create_time')
-    
+        context_dict['top_list'] = article_list.filter(is_sticky=True).order_by('-create_time')[:5]
+        article_list = article_list.filter(is_sticky=False)
+        
     items = len(article_list)
     context_dict['pagenums'] = items//10 if items%10==0 else items//10+1
     
     article_list = article_list[page-10:page]
     context_dict['article_list'] = article_list
-    
+
     return render(request, 'donghu/category.html', context_dict)
 
 @login_required
@@ -275,7 +280,7 @@ def submit_comment(request):
         return JsonResponse({'success':False})
 
     content = request.POST.get('content')
-    content = utils.replace(content)
+    # content = utils.replace(content)
     com = Commentary(article=article, author=request.user, content=content)
     com.save()
     return JsonResponse({'success':True})
@@ -296,20 +301,58 @@ def personal(request, username, uid):
     context_dict['article_list'] = Article.objects.filter(author=uid).order_by('-create_time')
     if request.user.id == uid:
         context_dict['is_visitor'] = False
+        context_dict['comment_list'] = Commentary.objects.filter(author=uid).order_by('-create_time')
+        context_dict['poll_list'] = Question.objects.filter(author=uid).order_by('-create_time')
         return render(request, 'donghu/personalpage.html', context_dict)
     # 避免构造链接打开此页面
     else:
         return render(request, 'donghu/personalpage.html', context_dict)
 
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        head = request.FILES.get('file')
+        print(head.content_type)
+        if head.content_type.split('/')[-1] not in ['jpg', 'gif', 'png', 'jpeg']:
+            return render(request, 'donghu/404.html')
+        name = '{}{}.{}'.format(request.user.username, request.user.id, head.content_type.split('/')[-1])
+        print(name, request.user.username)
+        head.name = name
+        gender = request.POST.get('gender')
+        motto = request.POST.get('motto')
+        with open('media/profile_images/{}'.format(name), "wb+") as f:
+            for chunk in head.chunks():
+                f.write(chunk)
+        up = UserProfile.objects.get_or_create(user = request.user)[0]
+        up.head = head
+        up.gender = gender
+        up.motto = motto
+        up.save()
+        return HttpResponseRedirect('/')
+        # return render(request, 'donghu/profile.html', {'message':'修改成功' ,'pro':up})
+
+    up = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, 'donghu/profile.html', {'pro':up})
+
 def search(request):
-    search_content = request.POST.get('search').strip()
-    if search_content == '':
-        return render(request, 'donghu/result.html')
-    results = Article.objects.filter(Q(title__contains=search_content)|Q(content__contains=search_content)).order_by('-create_time')
+    try:
+        search_content = request.POST.get('search').strip()
+    except:
+        return render(request, 'donghu/404.html')
+    try:
+        username = request.POST.get('usersearch').strip()
+    except:
+        pass
+    if search_content != '':
+        results = Article.objects.filter(Q(title__contains=search_content)|Q(content__contains=search_content)).order_by('-create_time')
 
-    context_dict = {'keywords':search_content, 'results':results}
-    return render(request, 'donghu/result.html', context_dict)
+        context_dict = {'keywords':search_content, 'results':results}
+        return render(request, 'donghu/result.html', context_dict)
+    elif username != '':
+        results = User.objects.filter(Q(username__contains=username))
+        return render(request, 'donghu/userlist.html', {"userlist":results})
 
+    return render(request, 'donghu/result.html')
 # -----------------------vote----------------------------
 
 
@@ -382,3 +425,45 @@ def add_vote(request):
         return HttpResponseRedirect(reverse('donghu:vote_detail', args=(q.id,)))
 
     return render(request, 'donghu/addvote.html')
+
+def advanced_search(request):
+    if request.method == 'POST':
+        try:
+            search_content = request.POST.get('srchtxt').strip()
+            username = request.POST.get('srchuname').strip()
+            srchfilter = request.POST.get('srchfilter').strip()
+            srchfrom = request.POST.get('srchfrom').strip()
+            orderby = request.POST.get('orderby').strip()
+            ascdesc = request.POST.get('ascdesc').strip()
+            srchfid = request.POST.getlist('srchfid')
+        except:
+            return render(request, 'donghu/404.html')
+
+        results = Article.objects.filter(Q(title__contains=search_content)|
+            Q(content__contains=search_content))
+        if username != '':
+            user = User.objects.filter(username=username)
+            if user != None:
+                results = results.filter(author=user)
+
+        if srchfid != 'all':
+            results = results.filter(module__id__in=srchfid)
+
+        if orderby == 'dateline':
+            if ascdesc == 'asc':
+                results = results.order_by('create_time')
+            if ascdesc == 'desc':
+                results = results.order_by('-create_time')
+        elif orderby == 'views':
+            if ascdesc == 'asc':
+                results = results.order_by('views')
+            if ascdesc == 'desc':
+                results = results.order_by('-views')
+
+        context_dict = {'keywords':search_content, 'results':results}
+        return render(request, 'donghu/result.html', context_dict)
+
+
+    else:
+        module = Module.objects.all()
+        return render(request, 'donghu/search.html', {'module': module})

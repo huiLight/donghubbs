@@ -54,6 +54,9 @@ a{
     color:black;
     text-decoration:none;
 }
+.mobilenav{
+    display: none;
+}
 .nav li a{
     display:inline-block;
     color:#fff;
@@ -95,4 +98,39 @@ ul.dnav{
 /*----------END----------*/
 .error{
     color: red;
+}
+
+.alastuser{
+    margin-right: 8px;
+}
+
+@media screen and (max-width: 550px) {
+    .mobilenav{
+        display: block!important;
+        text-align: left;
+        padding: 10px;
+        font-size: 20px;
+        font-weight: 500;
+    }
+    .mobilenav img{
+        float: right;
+    }
+    .nav ,.nav span{
+        width: 140px;
+        min-height: 100%;
+        display: block;
+        text-align: left;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: none;
+        z-index: 999;
+    }
+    .nav span{
+        position: static;
+        display: block;
+    }
+    .nav li{
+        display: block;
+    }
 }

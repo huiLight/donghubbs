@@ -1,0 +1,10 @@
+{% extends 'donghu/base.html' %}
+
+{% block body_block %}
+    {% for user in userlist %}
+    <div style="width 950px; text-align: left; margin:10px 100px;">
+        <img width="100px" height="100px" src="/static/{{user.userprofile.head}}">
+        <a href="{% url 'donghu:personal' user.username user.id %}">{{user.username}}</a>
+    </div>
+    {% endfor %}
+{% endblock %}

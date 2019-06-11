@@ -1,7 +1,9 @@
 body{
     background: #eee;
 }
-
+.mobilenav{
+    display: none;
+}
 .block{
     /*border: 1px solid red;*/
     width: 1000px;
@@ -31,4 +33,22 @@ h3{
     color: black;
     padding-bottom: 2px;
     border-bottom: 1px solid #666;
+}
+
+@media screen and (max-width: 550px) {
+    body{
+        background: white;
+    }
+
+    .block{
+    width: 96%;
+    background: white;
+    margin: 0 auto;
+    text-align: left;
+    }
+    .block ul{
+        width: 100%;
+        margin:0;
+    }
+
 }

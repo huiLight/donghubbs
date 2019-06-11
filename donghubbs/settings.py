@@ -16,6 +16,12 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIRS = os.path.join(BASE_DIR, 'static')
 
+# 配置上传文件存放的路径
+MEDIA_URL = '/media/'
+
+# 指定的文件存放的根目录，是一个字符串路径
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -31,15 +37,17 @@ ALLOWED_HOSTS = ['192.168.43.66','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'donghu.apps.DonghuConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.contrib.sites',
     # Abobe list was created by django.
-    'donghu.apps.DonghuConfig',
 ]
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,8 +87,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'donghubbs',
-        'USER': 'donghu',
-        'PASSWORD': 'AdongHu.19',
+        # 'USER': 'donghu',
+        # 'PASSWORD': 'AdongHu.19',
+        'USER': 'root',
+        'PASSWORD': 'root',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -129,7 +139,7 @@ LOGIN_URL = '/login/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-STATICFILES_DIRS = [STATIC_DIRS, ]
+STATICFILES_DIRS = [STATIC_DIRS, MEDIA_ROOT]
 STATIC_URL = '/static/'
 
 
@@ -139,3 +149,24 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # Only used when above variable is False
 # It is enabled by default
 SESSION_COOKIE_AGE = 24 * 60 * 60
+
+# Email
+# Email设置
+# 管理员邮箱
+ADMINS = (
+    ('3243148844@qq.com',),
+)
+# 非空链接，却发生404错误，发送通知MANAGERS
+SEND_BROKEN_LINK_EMAILS = True
+MANAGERS = ADMINS
+ 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 固定写法
+EMAIL_HOST = 'smtp.qq.com'                                # QQ邮箱SMTP服务器(邮箱需要开通SMTP服务)
+EMAIL_PORT = 25                                           # QQ邮箱SMTP服务端口
+EMAIL_HOST_USER = '3243148844@qq.com'                           # 我的邮箱帐号
+EMAIL_HOST_PASSWORD = 'ktbpqtbvhrjpdahc'                  # 授权码 - 密码  xamniqaasycsdjag / medxhyzcxodcdjhc
+EMAIL_SUBJECT_PREFIX = 'django website'                   # 为邮件标题的前缀,默认是'[django]'
+EMAIL_USE_TLS = False                                      # 开启安全链接
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER                      # 不设置会出错
+# DEFAULT_FROM_EMAIL = SERVER_EMAIL = EMAIL_HOST_USER     # 设置发件人
+EMAIL_FROM = '3243148844@qq.com'                                # 你的 QQ 账号

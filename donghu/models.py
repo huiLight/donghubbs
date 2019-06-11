@@ -37,6 +37,8 @@ class Article(models.Model):
     content = models.TextField()
     content_ismd = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
+    is_sticky = models.BooleanField(default=False)
+    is_highlight = models.BooleanField(default=False)
     views = models.PositiveIntegerField(default=0)
     likes = models.PositiveIntegerField(default=0)
 

@@ -1,13 +1,176 @@
 {% extends 'donghu/base.html' %}
 {% load staticfiles %}
 
+{% block head_block %}
+<style type="text/css">
+.navlist{
+    width:160px;
+    height:100%; 
+    padding: 10px 0; 
+    float: left; 
+    background: #f0f0f0;
+     background: linear-gradient(#f0f0f0, white);
+    font-size: 18px;
+}
+ul{
+    list-style:none;
+}
+.navlist a{
+    width: 100%;
+    display: inline-block;
+    margin: 4px 0;
+    padding-left: 10px;
+}
+.navlist a:hover{
+    color: white;
+    background: #666;
+}
+.title{
+    font-size: 16px;
+    font-weight: 800;
+    color: black;
+
+}
+.alist{
+    margin-top: 10px;
+}
+.alist li{
+    padding: 4px 0;
+    position: relative;
+}
+.alist li span{
+    text-align: right;
+    position: absolute;
+    right: 10px;
+}
+
+{% if not is_visitor %}
+.list{
+    width: 700px;
+/*    margin: 8px;
+    padding:10px;*/
+    padding: 0 10px;
+    float: left;
+}
+
+.show{
+    float: right;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    background: url(/static/img/down.png);
+    transform: scaleY(-1);
+    cursor: pointer;
+}
+{% endif %}
+</style>
+<script type="text/javascript">
+    // TODO: 显示隐藏按钮切换
+    var at1 = [1,1,1];
+    function b(fid, i){
+        $("#"+fid).slideToggle();
+        if(at1[i] == 1){
+            at1[i] = 0;
+            document.getElementById("show-or-hide"+i).style.transform="scaleY(1)";
+        }
+        else{
+            at1[i] = 1;
+            document.getElementById("show-or-hide"+i).style.transform="scaleY(-1)";
+        }
+    }
+</script>
+{% endblock%}
+
+
 {% block body_block %}
-    {% if not is_visitor %}
-        ----------------------
-    {% endif %}
-    {% for i in alist %}
-        <div>
-            {{ i.title }} {{i.create_time|date:'m-d'}}
+    
+    <div style="width: 950px; height: 100%; margin: 8px auto; text-align: left;">
+        {% if not is_visitor %}
+        <div class="navlist">
+            <ul>
+                <li><a id="info">个人资料</a></li>
+                <li><a href="">我的消息</a></li>
+                <li><a onclick="reopen('art')">发表的文章</a></li>
+                <li><a onclick="reopen('com')">发表的评论</a></li>
+                <li><a onclick="reopen('pol')">发起的投票</a></li>
+                <li><a >我关注的</a></li>
+                <li><a >关注我的</a></li>
+                <li><a href="/auth/password_change">修改密码</a></li>
+            </ul>    
         </div>
-    {% endfor %}
+        {% endif %}
+
+        <div class="list" id="list">
+            <div class="alist">
+                <div class="title" id="art">发表的文章
+                <div class="show" id="show-or-hide0" onclick="b('art1',0)"></div>
+                </div>
+                <hr>
+
+                <ul  id="art1">
+                {% for i in article_list %}
+                    <li>
+                        <a href="{% url 'donghu:detail' i.module.name i.author i.id %}">{{ i.title }}</a>
+                        <span>{{ i.module.name_zh }} {{i.create_time|date:'m-d'}}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+
+            {% if not is_visitor %}
+            
+            <div class="alist">
+                    <div class="title" id="com">做出的评论
+                    <div class="show" id="show-or-hide1" onclick="b('art2', 1)"></div>
+                </div>
+                <hr>
+
+                <ul id="art2">
+                {% if comment_list %}
+                {% for i in comment_list %}
+                    <li><a href="{% url 'donghu:detail' i.article.module.name i.article.author i.article.id %}#{{i.id}}">
+
+                        {{i.content|slice:":20"}}
+
+                    </a>
+                        <span>{{ i.article.module.name_zh }} {{i.create_time|date:'m-d'}}</span>
+                    </li>
+                {% endfor %}
+                {% endif %}
+                </ul>
+            </div>
+            
+
+            <div class="alist">
+                <div class="title" id="pol">发起的投票
+                    <div  class="show" id="show-or-hide2" onclick="b('art3',2)"></div>
+                </div>
+                <hr>
+
+                <ul id="art3">
+                {% for i in poll_list %}
+                    <li><a href="{% url 'donghu:vote_detail' i.id %}">{{ i.title }}</a>
+                    <span>投票 {{i.create_time|date:'m-d'}}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+            
+
+            {% endif %}
+        </div>
+    </div>
+    <div class="clear"></div>
+
+<script type="text/javascript">
+    var content = $("#list").html()
+    $("#info").click(function(){
+
+        $("#list").load("{% url 'donghu:profile' %}");
+    })
+    function reopen(tag){
+        $("#list").html(content)       
+        window.location.href="{% url 'donghu:personal' user.username user.id %}#"+tag;
+    }
+</script>
 {% endblock %}

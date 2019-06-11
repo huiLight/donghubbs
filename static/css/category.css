@@ -113,3 +113,58 @@ a:hover{
     display: inline-block;
 }
 */
+@media screen and (max-width: 550px) {
+    .search-form{
+        width: 100%;
+    }
+    .listGroup{
+    /*border: 1px solid transparent;*/
+    background: #c7c7c7;
+    width: 100%;
+    margin: 0 auto;
+    font-size: 16px;
+    padding: 1px 0;
+    }
+    .listGroupItem{
+        width: 100%;
+        min-height: 80px;
+        background: white;
+        margin: 2px 0;
+    }
+    .listGroupItem div{
+        line-height: 1em;
+    }
+    .listGroupItem div>a{
+        display: inline-block;
+        margin-top: 2em;
+    }
+    .info{
+    text-align: left;
+    position: absolute;
+    left: 20px;
+    top: 8px;
+    }
+    .listGroupItem .views{
+    display: none;
+    }
+    .editor{
+    width: 100%;
+    background: white;
+    margin: 0 auto;
+    text-align: left;
+    }
+    .editor input{
+    width: 280px;
+    height: 28px;
+    margin-top: -1px;
+    line-height: 24px;
+    padding: 0px 10px;
+    position: absolute;
+    top: 0;
+}
+    #content{
+        width: 100%;
+        margin:0;
+    }
+
+}

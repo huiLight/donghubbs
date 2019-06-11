@@ -9,16 +9,17 @@
     {% endblock %}
     </title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/all.css' %}">
-
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery.cookie.js' %}"></script>
     {% block head_block %}
     {% endblock %}
     
-    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'js/jquery.cookie.js' %}"></script>
 </head>
 <body>
+    <div class="mobilenav">东湖论坛<img id="menu" src="{% static 'img/menu.png' %}"></div>
     {% get_nav_list category user %}
     <div>
 <!--         <ul>
@@ -30,16 +31,27 @@
             {% endif %}
         </ul> -->
     </div>
-<div>
+<div style="height: 98%;">
     {% block body_block %}
     {% endblock %}
 </div>
     {% block js_block %}
     {% endblock %}
 
-<footer>
+<!-- <footer>
     <p>©2019 Donghu </p>
-</footer>
-
+</footer> -->
+    <script type="text/javascript">
+        var stat = 1;
+        $("#menu").click(function(){
+            if (stat==1){
+                $(".nav").show();
+                stat = 0;
+            }else{
+                $(".nav").hide();
+                stat = 1;
+            }
+        })
+    </script>
 </body>
 </html>

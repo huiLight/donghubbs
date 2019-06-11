@@ -15,14 +15,16 @@
 {% endblock%}
 
 {% block body_block %}
+    <div class="conlum"><span>{{passage.title}}</span> <a class="btn" onclick="testEditor.gotoLine(1)">回复</a></div>
     <div class="card-list">
         <div class="card">    
             <div class="post-owner">
+                <div class="head"><img width="100px" height="100px" src="/static/{{passage.author.userprofile.head}}"></div>
                 {{passage.author}}
             </div>
             <div id="editormd-view" class="post-content">
                 <textarea id="append-test" style="display: none;">{{passage.content}}</textarea>
-                <div>
+                <div class='dinfo'>
                     {% if user == passage.author or user|has_permission:category %}
                         <a class="delete">删除</a>
                     {% endif %}
@@ -36,14 +38,15 @@
         {% if comments %}
             {% for comment, recomments in comments.items %}
         <div class="card">
-                <div class="post-owner">   
+                <div class="post-owner" id="{comment.id}">
+                    <div class="head"><img  width="100px" height="100px" src="/static/{{comment.author.userprofile.head}}"></div>
                     {{comment.author}}
                 </div>
                 <div class="post-content markdown-body" id="test-editormd{{forloop.counter}}">
                     {% autoescape off %}
                         {{comment.content}}
                     {% endautoescape %}
-                    <div>
+                    <div class="dinfo">
                         {% if user == passage.author or user == comment.author or user|has_permission:category %}
                             <a  class="delete-comment" onclick="deleteComment({{comment.id}})" >删除</a>
                         {% endif %}
@@ -131,7 +134,7 @@
                         path   : "/static/lib/",
                         // appendMarkdown : md,
                         saveHTMLToTextarea : true,
-                        htmlDecode      : "style,script,iframe",
+                        htmlDecode      : false,
                         emoji           : true,
                         taskList        : true,
                         tex             : true,  // 默认不解析
@@ -247,6 +250,16 @@
         });
 
     });
+
+    $(function() {
+        $(window).scroll(function() {
+            if($(document).scrollTop() >= 100) {
+                $(".conlum").attr('style','position:fixed;top:0;left:50%;margin:0 0 0 -475px;')
+            } else {
+                $(".conlum").attr('style','position:static;')
+            }
+        })
+    })
 
     </script>
 {% endblock %}
