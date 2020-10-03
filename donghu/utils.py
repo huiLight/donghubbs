@@ -93,4 +93,4 @@ if __name__ == '__main__':
     # print(str1, str2)
     # str1.replace('<', '&')
     # print(str1)
-    print(sendyzm('3243148844@qq.com'))
+    print(sendyzm('123@qq.com'))
